@@ -26,6 +26,7 @@
         <Label text="Quantidade:" />
         <TextField fx:id="quantidadeField" prefWidth="220.0" text="1" />
         <Button fx:id="adicionarButton" mnemonicParsing="false" onAction="#handleAdicionarProduto" prefHeight="35.0" prefWidth="220.0" text="Adicionar à Venda" />
+        <Button fx:id="removerItemButton" mnemonicParsing="false" onAction="#handleRemoverItem" prefHeight="35.0" prefWidth="220.0" text="Remover Item Selecionado" style="-fx-background-color: #ffcccc;" />
         <VBox VBox.vgrow="ALWAYS" />
         <Button fx:id="gerenciarProdutosButton" mnemonicParsing="false" onAction="#handleGerenciarProdutos" prefHeight="35.0" prefWidth="220.0" text="Gerenciar Produtos" />
       </children>

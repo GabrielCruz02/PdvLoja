@@ -47,6 +47,8 @@ public class MainController implements Initializable {
     @FXML private Label totalLabel;
     @FXML private Button finalizarVendaButton;
 
+    @FXML private Button removerItemButton;
+
     private ProdutoDAO produtoDAO;
     private VendaDAO vendaDAO;
     private ItemVendaDAO itemVendaDAO;
@@ -190,6 +192,26 @@ public class MainController implements Initializable {
             total += item.getSubtotal();
         }
         totalLabel.setText(String.format("R$ %.2f", total));
+    }
+
+    @FXML
+    private void handleRemoverItem() {
+        // 1. Pega o item que está selecionado na tabela
+        ItemVenda itemSelecionado = vendaTableView.getSelectionModel().getSelectedItem();
+
+        // 2. Verifica se algo foi realmente selecionado
+        if (itemSelecionado == null) {
+            mostrarAlerta("Atenção", "Por favor, selecione um item na tabela para remover.");
+            return;
+        }
+
+        // 3. Remove o item da lista
+        // Como a tabela está ligada (bound) a esta lista,
+        // o item removido da lista desaparecerá automaticamente da tabela.
+        itensDaVenda.remove(itemSelecionado);
+
+        // 4. Atualiza o valor total da venda
+        atualizarTotalVenda();
     }
 
     @FXML
