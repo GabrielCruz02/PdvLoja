@@ -4,9 +4,12 @@ public class ItemVenda {
 
     private int id;
     private int vendaId;
-    private int produtoId;
+    private Produto produto;
     private int quantidade;
     private double precoUnitario;
+    private double subtotal;
+
+    // Getters e Setters atualizados
 
     public int getId() {
         return id;
@@ -24,12 +27,12 @@ public class ItemVenda {
         this.vendaId = vendaId;
     }
 
-    public int getProdutoId() {
-        return produtoId;
+    public Produto getProduto() {
+        return produto;
     }
 
-    public void setProdutoId(int produtoId) {
-        this.produtoId = produtoId;
+    public void setProduto(Produto produto) {
+        this.produto = produto;
     }
 
     public int getQuantidade() {
@@ -46,5 +49,13 @@ public class ItemVenda {
 
     public void setPrecoUnitario(double precoUnitario) {
         this.precoUnitario = precoUnitario;
+    }
+
+    public double getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(double subtotal) {
+        this.subtotal = subtotal;
     }
 }

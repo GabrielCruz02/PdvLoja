@@ -58,10 +58,9 @@ public class MainController implements Initializable {
     }
 
     private void configurarTabela() {
-        // Diz a cada coluna como extrair o valor de um objeto ItemVenda
-        // IMPORTANTE: "produto", "quantidade", etc., devem corresponder aos nomes das propriedades em ItemVenda.java
-        // Como ItemVenda tem um objeto Produto, precisamos de um CellValueFactory customizado para o nome.
+
         colunaProduto.setCellValueFactory(cellData -> cellData.getValue().getProduto().nomeProperty());
+
         colunaQuantidade.setCellValueFactory(new PropertyValueFactory<>("quantidade"));
         colunaPrecoUnitario.setCellValueFactory(new PropertyValueFactory<>("precoUnitario"));
         colunaSubtotal.setCellValueFactory(new PropertyValueFactory<>("subtotal"));
@@ -74,15 +73,63 @@ public class MainController implements Initializable {
         produtosComboBox.setItems(listaDeProdutos);
     }
 
+    // Em MainController.java
+
     @FXML
     private void handleAdicionarProduto() {
-        // A lógica para adicionar um item ao carrinho virá na próxima etapa
-        System.out.println("Botão 'Adicionar à Venda' clicado.");
+        // Pega os dados da tela
+        Produto produtoSelecionado = produtosComboBox.getSelectionModel().getSelectedItem();
+        String quantidadeTexto = quantidadeField.getText();
+
+        // Validação dos inputs
+        if (produtoSelecionado == null) {
+            System.out.println("Erro: Nenhum produto selecionado.");
+            // Futuramente, trocaremos isso por um alerta visual
+            return;
+        }
+
+        int quantidade;
+        try {
+            quantidade = Integer.parseInt(quantidadeTexto);
+            if (quantidade <= 0) {
+                System.out.println("Erro: A quantidade deve ser positiva.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Erro: Quantidade inválida.");
+            return;
+        }
+
+        // Cria um novo ItemVenda
+        ItemVenda novoItem = new ItemVenda();
+        novoItem.setProduto(produtoSelecionado);
+        novoItem.setQuantidade(quantidade);
+        novoItem.setPrecoUnitario(produtoSelecionado.getPreco());
+        novoItem.setSubtotal(produtoSelecionado.getPreco() * quantidade);
+
+        // Adiciona o item à lista que está ligada à tabela
+        itensDaVenda.add(novoItem);
+
+        // Atualiza o valor total da venda
+        atualizarTotalVenda();
+
+        // Limpa os campos para a próxima inserção
+        produtosComboBox.getSelectionModel().clearSelection();
+        quantidadeField.setText("1");
+    }
+
+    // Método auxiliar para calcular e exibir o total da venda.
+    private void atualizarTotalVenda() {
+        double total = 0.0;
+        for (ItemVenda item : itensDaVenda) {
+            total += item.getSubtotal();
+        }
+        totalLabel.setText(String.format("R$ %.2f", total));
     }
 
     @FXML
     private void handleFinalizarVenda() {
-        // A lógica para salvar a venda no banco virá depois
+
         System.out.println("Botão 'Finalizar Venda' clicado.");
     }
 

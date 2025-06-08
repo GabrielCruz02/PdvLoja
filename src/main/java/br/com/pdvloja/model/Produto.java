@@ -1,5 +1,8 @@
 package br.com.pdvloja.model;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 public class Produto {
     private int id;
     private String nome;
@@ -48,5 +51,9 @@ public class Produto {
     @Override
     public String toString() {
         return nome + " - " + preco;
+    }
+
+    public StringProperty nomeProperty() {
+        return new SimpleStringProperty(this.nome);
     }
 }
