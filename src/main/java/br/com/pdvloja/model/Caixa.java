@@ -1,11 +1,12 @@
 package br.com.pdvloja.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Caixa {
 
     private int id;
-    private LocalDateTime data;
+    private LocalDate data;
     private double valorInicial;
     private double valorFinal;
     private boolean aberto;
@@ -42,11 +43,11 @@ public class Caixa {
         this.valorInicial = valorInicial;
     }
 
-    public LocalDateTime getData() {
+    public LocalDate getData() {
         return data;
     }
 
-    public void setData(LocalDateTime data) {
+    public void setData(LocalDate data) {
         this.data = data;
     }
 }

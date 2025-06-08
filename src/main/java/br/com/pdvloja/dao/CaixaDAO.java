@@ -63,7 +63,7 @@ public class CaixaDAO {
             if (rs.next()) {
                 Caixa caixa = new Caixa();
                 caixa.setId(rs.getInt("id"));
-                caixa.setData(LocalDateTime.parse(rs.getString("data_abertura")));
+                caixa.setData(LocalDate.parse(rs.getString("data_abertura")));
                 caixa.setValorInicial(rs.getDouble("valor_inicial"));
                 // O caixa está aberto pois data_fechamento é NULL
                 caixa.setAberto(true);
