@@ -30,7 +30,7 @@ public class ProdutoDAO {
 
             stmt.setString(1, produto.getNome());
             stmt.setDouble(2, produto.getPreco());
-            stmt.setInt(4, produto.getId());
+            stmt.setInt(3, produto.getId());
 
             stmt.executeUpdate();
         } catch (SQLException e) {
