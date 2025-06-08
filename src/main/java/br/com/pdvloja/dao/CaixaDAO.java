@@ -1,32 +1,30 @@
 package br.com.pdvloja.dao;
 
-import br.com.pdvloja.util.ConnectionFactory;
 import br.com.pdvloja.model.Caixa;
+import br.com.pdvloja.util.ConnectionFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.LocalDateTime;
 
 public class CaixaDAO {
 
+    /**
+     * Insere um novo registro de caixa no banco, marcando-o como aberto.
+     * @param caixa O objeto Caixa com a data e o valor inicial.
+     */
     public void abrirCaixa(Caixa caixa) {
-        // MUDANÇA: Inserindo nos campos data_abertura e hora_abertura
         String sql = "INSERT INTO caixa (data_abertura, hora_abertura, valor_inicial) VALUES (?, ?, ?)";
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Formatadores para garantir o padrão de texto do banco
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE; // ex: 2025-06-08
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss"); // ex: 10:51:00
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
             stmt.setString(1, caixa.getData().format(dateFormatter));
-            stmt.setString(2, LocalTime.now().format(timeFormatter)); // Usando a hora atual para a abertura
+            stmt.setString(2, LocalTime.now().format(timeFormatter));
             stmt.setDouble(3, caixa.getValorInicial());
 
             stmt.executeUpdate();
@@ -36,14 +34,25 @@ public class CaixaDAO {
         }
     }
 
-    public void fecharCaixa(int caixaId, double valorFinal) {
-        String sql = "UPDATE caixa SET valor_final = ?, aberto = 0 WHERE id = ?";
+    /**
+     * Atualiza o registro do caixa no banco com os totais e as datas/horas de fechamento.
+     */
+    public void fecharCaixa(int caixaId, double totalDinheiro, double totalCartao, double totalPix, double totalGeral) {
+        String sql = "UPDATE caixa SET data_fechamento = ?, hora_fechamento = ?, total_dinheiro = ?, total_cartao = ?, total_pix = ?, total_geral = ? WHERE id = ?";
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setDouble(1, valorFinal);
-            stmt.setInt(2, caixaId);
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+            stmt.setString(1, LocalDate.now().format(dateFormatter));
+            stmt.setString(2, LocalTime.now().format(timeFormatter));
+            stmt.setDouble(3, totalDinheiro);
+            stmt.setDouble(4, totalCartao);
+            stmt.setDouble(5, totalPix);
+            stmt.setDouble(6, totalGeral);
+            stmt.setInt(7, caixaId); // O índice do ID muda de 8 para 7
 
             stmt.executeUpdate();
 
@@ -52,8 +61,12 @@ public class CaixaDAO {
         }
     }
 
+    /**
+     * Busca no banco de dados se existe algum caixa com o status "aberto".
+     * Um caixa é considerado aberto se a sua data_fechamento for nula.
+     * @return Um objeto Caixa se houver um aberto, ou null caso contrário.
+     */
     public Caixa buscarCaixaAberto() {
-        // MUDANÇA: A lógica de um caixa aberto é não ter data de fechamento
         String sql = "SELECT * FROM caixa WHERE data_fechamento IS NULL LIMIT 1";
 
         try (Connection conn = ConnectionFactory.getConnection();
@@ -65,7 +78,6 @@ public class CaixaDAO {
                 caixa.setId(rs.getInt("id"));
                 caixa.setData(LocalDate.parse(rs.getString("data_abertura")));
                 caixa.setValorInicial(rs.getDouble("valor_inicial"));
-                // O caixa está aberto pois data_fechamento é NULL
                 caixa.setAberto(true);
                 return caixa;
             }
@@ -73,8 +85,6 @@ public class CaixaDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao buscar caixa aberto: " + e.getMessage(), e);
         }
-        return null; // Nenhum caixa aberto encontrado
+        return null; // Retorna null se nenhum caixa estiver aberto
     }
-
 }
-

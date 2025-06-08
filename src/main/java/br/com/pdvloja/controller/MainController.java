@@ -306,29 +306,50 @@ public class MainController implements Initializable {
 
     @FXML
     private void handleFecharCaixa() {
-        System.out.println("Botão 'Fechar Caixa' clicado. Buscando dados para o relatório...");
-
-        // Pega o caixa que está aberto atualmente
         Caixa caixaAberto = caixaDAO.buscarCaixaAberto();
         if (caixaAberto == null) {
             mostrarAlerta("Erro", "Não há nenhum caixa aberto para fechar.");
             return;
         }
-
-        // Usa o novo método para buscar todas as vendas desse caixa
         List<Venda> vendasDoDia = vendaDAO.listarPorCaixaId(caixaAberto.getId());
 
-        if (vendasDoDia.isEmpty()) {
-            mostrarAlerta("Atenção", "Nenhuma venda registrada neste caixa.");
-            // Aqui poderíamos perguntar se quer fechar mesmo assim. Por enquanto, só avisamos.
-            return;
+        // --- Lógica de Cálculo dos Totais ---
+        double totalDinheiro = 0;
+        double totalCartao = 0;
+        double totalPix = 0;
+
+        for (Venda venda : vendasDoDia) {
+            switch (venda.getFormaPagamento()) {
+                case "Dinheiro":
+                    totalDinheiro += venda.getValorTotal();
+                    break;
+                case "Cartão de Crédito":
+                    totalCartao += venda.getValorTotal();
+                    break;
+                case "Pix":
+                    totalPix += venda.getValorTotal();
+                    break;
+            }
         }
 
-        // Imprime as vendas no console para teste
-        System.out.println("--- VENDAS DO DIA ---");
-        for (Venda venda : vendasDoDia) {
-            System.out.println("ID: " + venda.getId() + ", Valor: " + venda.getValorTotal() + ", Pagamento: " + venda.getFormaPagamento());
+        // --- Lógica para Abrir a Janela de Relatório ---
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/br/com/pdvloja/fxml/FecharCaixaView.fxml"));
+            Scene scene = new Scene(loader.load());
+
+
+            FecharCaixaController controller = loader.getController();
+            // Chama o método initData para passar os dados para a nova tela
+            controller.initData(caixaAberto, totalDinheiro, totalCartao, totalPix);
+
+            Stage stage = new Stage();
+            stage.setTitle("Fechamento de Caixa");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        System.out.println("--------------------");
     }
 }
