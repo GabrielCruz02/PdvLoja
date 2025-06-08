@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.pdvloja.controller.ProdutoController">
+    <children>
+        <SplitPane dividerPositions="0.6" layoutX="159.0" layoutY="95.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                    <children>
+                        <TableView fx:id="tabelaProdutos" layoutX="42.0" layoutY="62.0" prefHeight="398.0" prefWidth="354.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <columns>
+                                <TableColumn fx:id="colunaId" prefWidth="75.0" text="ID" />
+                                <TableColumn fx:id="colunaNome" prefWidth="175.0" text="Nome" />
+                                <TableColumn fx:id="colunaPreco" prefWidth="100.0" text="Preço" />
+                            </columns>
+                        </TableView>
+                    </children>
+                </AnchorPane>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="398.0" prefWidth="213.0">
+                    <children>
+                        <VBox layoutX="-28.0" layoutY="21.0" prefHeight="398.0" prefWidth="234.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <children>
+                                <Label text="Cadastro de Produto">
+                                    <font>
+                                        <Font name="System Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <Label text="Nome:" />
+                                <TextField fx:id="campoNome" promptText="Bolo de Chocolate" />
+                                <Label text="Preço:" />
+                                <TextField fx:id="campoPreco" promptText="50,00" />
+                                <Button fx:id="botaoSalvar" mnemonicParsing="false" onAction="#handleSalvar" prefHeight="25.0" prefWidth="205.0" text="Salvar" />
+                                <Button fx:id="botaoExcluir" mnemonicParsing="false" onAction="#handleExcluir" prefHeight="25.0" prefWidth="205.0" text="Excluir Selecionado" />
+                                <Button fx:id="botaoLimpar" mnemonicParsing="false" onAction="#handleLimpar" prefHeight="25.0" prefWidth="206.0" text="Limpar Formulário" />
+                            </children>
+                            <padding>
+                                <Insets left="15.0" right="15.0" top="15.0" />
+                            </padding>
+                        </VBox>
+                    </children>
+                </AnchorPane>
+            </items>
+        </SplitPane>
+    </children>
+</AnchorPane>
