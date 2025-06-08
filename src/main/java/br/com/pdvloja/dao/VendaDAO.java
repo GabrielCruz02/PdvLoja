@@ -14,10 +14,10 @@ public class VendaDAO {
         String sqlInsert = "INSERT INTO vendas (id_caixa, data, hora, forma_pagamento, valor_total, valor_pago, troco) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String sqlSelectId = "SELECT last_insert_rowid()"; // Comando específico do SQLite para pegar o último ID
 
-        // É crucial usar a mesma conexão para as duas operações
+
         try (Connection conn = ConnectionFactory.getConnection()) {
 
-            // Passo 1: Inserir a venda, sem pedir as chaves geradas
+            // Inserir a venda, sem pedir as chaves geradas
             try (PreparedStatement stmt = conn.prepareStatement(sqlInsert)) {
                 DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
                 DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -36,7 +36,7 @@ public class VendaDAO {
                 }
             }
 
-            // Passo 2: Buscar o ID da venda que acabamos de inserir na mesma conexão
+            // Buscar o ID da venda que acabamos de inserir na mesma conexão
             try (Statement stmtSelect = conn.createStatement();
                  ResultSet rs = stmtSelect.executeQuery(sqlSelectId)) {
                 if (rs.next()) {
@@ -49,6 +49,34 @@ public class VendaDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao inserir venda: " + e.getMessage(), e);
         }
+    }
+
+    public List<Venda> listarPorCaixaId(int idCaixa) {
+        List<Venda> vendas = new ArrayList<>();
+        String sql = "SELECT * FROM vendas WHERE id_caixa = ?";
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idCaixa);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Venda venda = new Venda();
+                venda.setId(rs.getInt("id"));
+                // Este campo de data/hora precisa ser montado, já que no banco estão separados
+                // O ideal seria unir data e hora do banco em um LocalDateTime (sugestão de atualização futura).
+                venda.setDataHora(java.time.LocalDate.parse(rs.getString("data")).atStartOfDay());
+                venda.setFormaPagamento(rs.getString("forma_pagamento"));
+                venda.setValorTotal(rs.getDouble("valor_total"));
+                venda.setValorPago(rs.getDouble("valor_pago"));
+                venda.setTroco(rs.getDouble("troco"));
+                vendas.add(venda);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao listar vendas por caixa: " + e.getMessage(), e);
+        }
+        return vendas;
     }
 
 }

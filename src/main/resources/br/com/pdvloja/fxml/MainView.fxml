@@ -29,6 +29,7 @@
         <Button fx:id="removerItemButton" mnemonicParsing="false" onAction="#handleRemoverItem" prefHeight="35.0" prefWidth="220.0" text="Remover Item Selecionado" style="-fx-background-color: #ffcccc;" />
         <VBox VBox.vgrow="ALWAYS" />
         <Button fx:id="gerenciarProdutosButton" mnemonicParsing="false" onAction="#handleGerenciarProdutos" prefHeight="35.0" prefWidth="220.0" text="Gerenciar Produtos" />
+        <Button fx:id="fecharCaixaButton" mnemonicParsing="false" onAction="#handleFecharCaixa" prefHeight="35.0" prefWidth="220.0" text="Fechar Caixa" style="-fx-background-color: #f39c12;" />
       </children>
       <padding>
         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />

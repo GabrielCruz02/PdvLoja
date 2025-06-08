@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -48,6 +49,8 @@ public class MainController implements Initializable {
     @FXML private Button finalizarVendaButton;
 
     @FXML private Button removerItemButton;
+
+    @FXML private Button fecharCaixaButton;
 
     private ProdutoDAO produtoDAO;
     private VendaDAO vendaDAO;
@@ -299,5 +302,33 @@ public class MainController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void handleFecharCaixa() {
+        System.out.println("Botão 'Fechar Caixa' clicado. Buscando dados para o relatório...");
+
+        // Pega o caixa que está aberto atualmente
+        Caixa caixaAberto = caixaDAO.buscarCaixaAberto();
+        if (caixaAberto == null) {
+            mostrarAlerta("Erro", "Não há nenhum caixa aberto para fechar.");
+            return;
+        }
+
+        // Usa o novo método para buscar todas as vendas desse caixa
+        List<Venda> vendasDoDia = vendaDAO.listarPorCaixaId(caixaAberto.getId());
+
+        if (vendasDoDia.isEmpty()) {
+            mostrarAlerta("Atenção", "Nenhuma venda registrada neste caixa.");
+            // Aqui poderíamos perguntar se quer fechar mesmo assim. Por enquanto, só avisamos.
+            return;
+        }
+
+        // Imprime as vendas no console para teste
+        System.out.println("--- VENDAS DO DIA ---");
+        for (Venda venda : vendasDoDia) {
+            System.out.println("ID: " + venda.getId() + ", Valor: " + venda.getValorTotal() + ", Pagamento: " + venda.getFormaPagamento());
+        }
+        System.out.println("--------------------");
     }
 }
