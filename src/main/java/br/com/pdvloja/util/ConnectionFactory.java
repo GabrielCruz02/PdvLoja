@@ -11,4 +11,3 @@ public class ConnectionFactory {
         return DriverManager.getConnection(URL);
     }
 }
-

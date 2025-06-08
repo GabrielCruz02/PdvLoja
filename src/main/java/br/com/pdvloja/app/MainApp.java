@@ -8,7 +8,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 
 public class MainApp extends Application {
 
@@ -41,6 +43,24 @@ public class MainApp extends Application {
     }
 
     public static void main(String[] args) {
-        launch();
+        // ----- INÍCIO DO CÓDIGO DE LOG -----
+        // Este bloco vai redirecionar qualquer erro que aconteceria no console para um arquivo de log
+        try {
+            // Cria uma pasta de logs no diretório do usuário (ex: C:\Users\SeuNome\PdvLojaLogs)
+            // EscolhemOS esta pasta pois a aplicação sempre terá permissão para escrever aqui.
+            File logDir = new File(System.getProperty("user.home"), "PdvLojaLogs");
+            if (!logDir.exists()) {
+                logDir.mkdirs();
+            }
+            // Cria o arquivo de log e define como a saída de erro padrão
+            PrintStream errStream = new PrintStream(new File(logDir, "error.log"));
+            System.setErr(errStream);
+        } catch (FileNotFoundException e) {
+            // Se nem isso der certo, o erro aparecerá no console de desenvolvimento
+            e.printStackTrace();
+        }
+        // ----- FIM DO CÓDIGO DE LOG -----
+
+        launch(args);
     }
 }
