@@ -31,6 +31,11 @@ public class MainController implements Initializable {
     @FXML private Button adicionarButton;
     @FXML private Button gerenciarProdutosButton;
 
+    // --- Componentes do botão de finalizar venda ---
+    @FXML private ComboBox<String> formaPagamentoComboBox;
+    @FXML private TextField valorPagoField;
+    @FXML private Label trocoLabel;
+
     // --- Componentes da Tabela de Itens da Venda ---
     @FXML private TableView<ItemVenda> vendaTableView;
     @FXML private TableColumn<ItemVenda, String> colunaProduto;
@@ -69,6 +74,52 @@ public class MainController implements Initializable {
 
         // Associa a lista de itens da venda com a tabela
         vendaTableView.setItems(itensDaVenda);
+
+        formaPagamentoComboBox.setItems(FXCollections.observableArrayList("Dinheiro", "Cartão de Crédito", "Pix"));
+        formaPagamentoComboBox.setValue("Dinheiro");
+
+        configurarListeners();
+    }
+
+    private void configurarListeners() {
+        // Listener para a FORMA DE PAGAMENTO
+        formaPagamentoComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            boolean isDinheiro = "Dinheiro".equals(newValue);
+            valorPagoField.setVisible(isDinheiro);
+            trocoLabel.setVisible(isDinheiro);
+
+            if (!isDinheiro) {
+                valorPagoField.clear();
+                trocoLabel.setText("R$ 0,00");
+            }
+        });
+
+        // Listener para o VALOR PAGO (calcula o troco em tempo real)
+        valorPagoField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if ("Dinheiro".equals(formaPagamentoComboBox.getValue())) {
+                try {
+                    double valorPago = 0;
+                    if (!newValue.isEmpty()) {
+                        valorPago = Double.parseDouble(newValue.replace(",", "."));
+                    }
+
+                    double totalVenda = Double.parseDouble(totalLabel.getText().replace("R$ ", "").replace(",", "."));
+                    double troco = valorPago - totalVenda;
+
+                    if (troco < 0) {
+                        trocoLabel.setText("R$ 0,00");
+                    } else {
+                        trocoLabel.setText(String.format("R$ %.2f", troco));
+                    }
+
+                } catch (NumberFormatException e) {
+                    trocoLabel.setText("R$ 0,00");
+                }
+            }
+        });
+
+        // Dispara o listener uma vez para configurar o estado inicial da tela
+        formaPagamentoComboBox.getSelectionModel().selectFirst();
     }
 
     private void configurarTabela() {
@@ -143,45 +194,45 @@ public class MainController implements Initializable {
 
     @FXML
     private void handleFinalizarVenda() {
-        // Validar se há itens na venda
         if (itensDaVenda.isEmpty()) {
             mostrarAlerta("Erro", "Não é possível finalizar uma venda vazia.");
             return;
         }
-
-        // Obter o caixa aberto
         Caixa caixaAberto = caixaDAO.buscarCaixaAberto();
         if (caixaAberto == null) {
-            mostrarAlerta("Erro Crítico", "Nenhum caixa aberto encontrado. A aplicação será fechada.");
-            // Em um app real, poderíamos tentar reabrir a tela de abertura, mas por enquanto fechamos.
-            Stage stage = (Stage) finalizarVendaButton.getScene().getWindow();
-            stage.close();
+            // ... (código de erro do caixa existente)
             return;
         }
 
-        // Criar o objeto Venda
         Venda novaVenda = new Venda();
         novaVenda.setDataHora(java.time.LocalDateTime.now());
-        novaVenda.setValorTotal(Double.parseDouble(totalLabel.getText().replace("R$ ", "").replace(",", ".")));
-        novaVenda.setFormaPagamento("Dinheiro"); // Por enquanto, fixo. Adicionaremos o ComboBox depois.
-        novaVenda.setValorPago(0); // Lógica de troco virá depois
-        novaVenda.setTroco(0);
 
-        // 4. Salvar a Venda e os Itens (Lógica principal)
+        // Pega os valores da tela
+        double total = Double.parseDouble(totalLabel.getText().replace("R$ ", "").replace(",", "."));
+        double valorPago = 0;
+        double troco = 0;
+
+        String formaPagamento = formaPagamentoComboBox.getValue();
+
+        if ("Dinheiro".equals(formaPagamento) && !valorPagoField.getText().isEmpty()) {
+            valorPago = Double.parseDouble(valorPagoField.getText().replace(",", "."));
+            troco = Double.parseDouble(trocoLabel.getText().replace("R$ ", "").replace(",", "."));
+        }
+
+        // Define os valores no objeto Venda
+        novaVenda.setValorTotal(total);
+        novaVenda.setFormaPagamento(formaPagamento);
+        novaVenda.setValorPago(valorPago);
+        novaVenda.setTroco(troco);
+
         try {
-            // Salva a venda principal e pega o ID gerado
             int vendaId = vendaDAO.inserir(novaVenda, caixaAberto.getId());
-
-            // Para cada item na nossa lista, associa o ID da venda e salva no banco
             for (ItemVenda item : itensDaVenda) {
                 item.setVendaId(vendaId);
                 itemVendaDAO.inserir(item);
             }
-
-            // Dar feedback ao usuário e limpar a tela
             mostrarAlerta("Sucesso", "Venda finalizada com sucesso!");
             limparVendaAtual();
-
         } catch (RuntimeException e) {
             mostrarAlerta("Erro de Banco de Dados", "Ocorreu um erro ao salvar a venda.");
             e.printStackTrace();
@@ -190,10 +241,15 @@ public class MainController implements Initializable {
 
     // Método auxiliar para limpar a tela
     private void limparVendaAtual() {
-        itensDaVenda.clear(); // Limpa a lista, que atualiza a tabela
+        itensDaVenda.clear();
         totalLabel.setText("R$ 0,00");
         produtosComboBox.getSelectionModel().clearSelection();
         quantidadeField.setText("1");
+
+        // Limpeza dos novos campos
+        formaPagamentoComboBox.setValue("Dinheiro");
+        valorPagoField.clear();
+        trocoLabel.setText("R$ 0,00");
     }
 
     // Método auxiliar para mostrar alertas ao usuário

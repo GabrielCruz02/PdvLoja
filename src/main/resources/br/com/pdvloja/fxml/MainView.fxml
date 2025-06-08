@@ -60,23 +60,37 @@
     </VBox>
   </center>
   <bottom>
-    <HBox alignment="CENTER_RIGHT" prefHeight="55.0" spacing="20.0" style="-fx-background-color: #e0e0e0; -fx-border-color: #cccccc; -fx-border-width: 1 0 0 0;" BorderPane.alignment="CENTER">
+    <VBox alignment="CENTER_RIGHT" prefHeight="100.0" spacing="10.0" style="-fx-background-color: #e0e0e0; -fx-border-color: #cccccc; -fx-border-width: 1 0 0 0;">
       <children>
-        <Label text="TOTAL:">
-          <font>
-            <Font name="System Bold" size="18.0" />
-          </font>
-        </Label>
-        <Label fx:id="totalLabel" text="R$ 0,00">
-          <font>
-            <Font name="System Bold" size="24.0" />
-          </font>
-        </Label>
-        <Button fx:id="finalizarVendaButton" mnemonicParsing="false" onAction="#handleFinalizarVenda" prefHeight="40.0" prefWidth="150.0" text="Finalizar Venda" />
+        <HBox alignment="CENTER_RIGHT" spacing="20.0">
+          <children>
+            <Label text="Forma de Pagamento:" />
+            <ComboBox fx:id="formaPagamentoComboBox" prefWidth="150.0" />
+            <Label text="Valor Pago:" />
+            <TextField fx:id="valorPagoField" prefWidth="100.0" promptText="R$ 0,00" />
+            <Label text="Troco:" />
+            <Label fx:id="trocoLabel" style="-fx-font-weight: bold;" text="R$ 0,00" />
+          </children>
+        </HBox>
+        <HBox alignment="CENTER_RIGHT" spacing="20.0">
+          <children>
+            <Label text="TOTAL:">
+              <font>
+                <Font name="System Bold" size="18.0" />
+              </font>
+            </Label>
+            <Label fx:id="totalLabel" text="R$ 0,00">
+              <font>
+                <Font name="System Bold" size="24.0" />
+              </font>
+            </Label>
+            <Button fx:id="finalizarVendaButton" mnemonicParsing="false" onAction="#handleFinalizarVenda" prefHeight="40.0" prefWidth="150.0" text="Finalizar Venda" />
+          </children>
+        </HBox>
       </children>
       <padding>
-        <Insets right="15.0" />
+        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
       </padding>
-    </HBox>
+    </VBox>
   </bottom>
 </BorderPane>
