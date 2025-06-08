@@ -1,8 +1,13 @@
 package br.com.pdvloja.controller;
 
+import br.com.pdvloja.dao.CaixaDAO;
+import br.com.pdvloja.dao.ItemVendaDAO;
 import br.com.pdvloja.dao.ProdutoDAO;
+import br.com.pdvloja.dao.VendaDAO;
+import br.com.pdvloja.model.Caixa;
 import br.com.pdvloja.model.ItemVenda;
 import br.com.pdvloja.model.Produto;
+import br.com.pdvloja.model.Venda;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -38,13 +43,22 @@ public class MainController implements Initializable {
     @FXML private Button finalizarVendaButton;
 
     private ProdutoDAO produtoDAO;
+    private VendaDAO vendaDAO;
+    private ItemVendaDAO itemVendaDAO;
+    private CaixaDAO caixaDAO;
+
     private ObservableList<Produto> listaDeProdutos;
     private ObservableList<ItemVenda> itensDaVenda;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Inicializa os DAOs e as listas
+
+        // Inicializa TODOS os DAOs para que não fiquem nulos
         this.produtoDAO = new ProdutoDAO();
+        this.vendaDAO = new VendaDAO();
+        this.itemVendaDAO = new ItemVendaDAO();
+        this.caixaDAO = new CaixaDAO();
+
         this.itensDaVenda = FXCollections.observableArrayList();
 
         // Configura as colunas da tabela
@@ -129,8 +143,66 @@ public class MainController implements Initializable {
 
     @FXML
     private void handleFinalizarVenda() {
+        // Validar se há itens na venda
+        if (itensDaVenda.isEmpty()) {
+            mostrarAlerta("Erro", "Não é possível finalizar uma venda vazia.");
+            return;
+        }
 
-        System.out.println("Botão 'Finalizar Venda' clicado.");
+        // Obter o caixa aberto
+        Caixa caixaAberto = caixaDAO.buscarCaixaAberto();
+        if (caixaAberto == null) {
+            mostrarAlerta("Erro Crítico", "Nenhum caixa aberto encontrado. A aplicação será fechada.");
+            // Em um app real, poderíamos tentar reabrir a tela de abertura, mas por enquanto fechamos.
+            Stage stage = (Stage) finalizarVendaButton.getScene().getWindow();
+            stage.close();
+            return;
+        }
+
+        // Criar o objeto Venda
+        Venda novaVenda = new Venda();
+        novaVenda.setDataHora(java.time.LocalDateTime.now());
+        novaVenda.setValorTotal(Double.parseDouble(totalLabel.getText().replace("R$ ", "").replace(",", ".")));
+        novaVenda.setFormaPagamento("Dinheiro"); // Por enquanto, fixo. Adicionaremos o ComboBox depois.
+        novaVenda.setValorPago(0); // Lógica de troco virá depois
+        novaVenda.setTroco(0);
+
+        // 4. Salvar a Venda e os Itens (Lógica principal)
+        try {
+            // Salva a venda principal e pega o ID gerado
+            int vendaId = vendaDAO.inserir(novaVenda, caixaAberto.getId());
+
+            // Para cada item na nossa lista, associa o ID da venda e salva no banco
+            for (ItemVenda item : itensDaVenda) {
+                item.setVendaId(vendaId);
+                itemVendaDAO.inserir(item);
+            }
+
+            // Dar feedback ao usuário e limpar a tela
+            mostrarAlerta("Sucesso", "Venda finalizada com sucesso!");
+            limparVendaAtual();
+
+        } catch (RuntimeException e) {
+            mostrarAlerta("Erro de Banco de Dados", "Ocorreu um erro ao salvar a venda.");
+            e.printStackTrace();
+        }
+    }
+
+    // Método auxiliar para limpar a tela
+    private void limparVendaAtual() {
+        itensDaVenda.clear(); // Limpa a lista, que atualiza a tabela
+        totalLabel.setText("R$ 0,00");
+        produtosComboBox.getSelectionModel().clearSelection();
+        quantidadeField.setText("1");
+    }
+
+    // Método auxiliar para mostrar alertas ao usuário
+    private void mostrarAlerta(String titulo, String mensagem) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensagem);
+        alert.showAndWait();
     }
 
     @FXML

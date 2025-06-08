@@ -11,7 +11,7 @@ public class ItemVendaDAO {
 
     public void inserir(ItemVenda item) {
 
-        String sql = "INSERT INTO venda_itens (venda_id, produto_id, quantidade, preco_unitario, preco_total) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO venda_itens (id_venda, id_produto, quantidade, preco_unitario, preco_total) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
