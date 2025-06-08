@@ -2,6 +2,7 @@ package br.com.pdvloja.app;
 
 import br.com.pdvloja.dao.CaixaDAO;
 import br.com.pdvloja.model.Caixa;
+import br.com.pdvloja.util.DatabaseInitializer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -60,6 +61,8 @@ public class MainApp extends Application {
             e.printStackTrace();
         }
         // ----- FIM DO CÓDIGO DE LOG -----
+
+        DatabaseInitializer.initialize();
 
         launch(args);
     }
