@@ -1,17 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="br.com.pdvloja.controller.MainController">
-  <padding>
-    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-  </padding>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-  <Label fx:id="welcomeText"/>
-
-  <Button mnemonicParsing="false" onAction="#handleGerenciarProdutos" text="Gerenciar Produtos" />
-</VBox>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.pdvloja.controller.MainController">
+  <left>
+    <VBox prefHeight="545.0" prefWidth="250.0" spacing="10.0" style="-fx-background-color: #f0f0f0; -fx-border-color: #cccccc; -fx-border-width: 0 1 0 0;" BorderPane.alignment="CENTER">
+      <children>
+        <Label text="Adicionar Produto">
+          <font>
+            <Font name="System Bold" size="18.0" />
+          </font>
+        </Label>
+        <Label text="Selecione um Produto:" />
+        <ComboBox fx:id="produtosComboBox" prefWidth="220.0" promptText="Selecione..." />
+        <Label text="Quantidade:" />
+        <TextField fx:id="quantidadeField" prefWidth="220.0" text="1" />
+        <Button fx:id="adicionarButton" mnemonicParsing="false" onAction="#handleAdicionarProduto" prefHeight="35.0" prefWidth="220.0" text="Adicionar à Venda" />
+        <VBox VBox.vgrow="ALWAYS" />
+        <Button fx:id="gerenciarProdutosButton" mnemonicParsing="false" onAction="#handleGerenciarProdutos" prefHeight="35.0" prefWidth="220.0" text="Gerenciar Produtos" />
+      </children>
+      <padding>
+        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+      </padding>
+    </VBox>
+  </left>
+  <center>
+    <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <children>
+        <Label text="Itens da Venda Atual">
+          <font>
+            <Font name="System Bold" size="18.0" />
+          </font>
+          <VBox.margin>
+            <Insets bottom="10.0" />
+          </VBox.margin>
+        </Label>
+        <TableView fx:id="vendaTableView" prefHeight="450.0" VBox.vgrow="ALWAYS">
+          <columns>
+            <TableColumn fx:id="colunaProduto" prefWidth="250.0" text="Produto" />
+            <TableColumn fx:id="colunaQuantidade" prefWidth="75.0" text="Qtd" />
+            <TableColumn fx:id="colunaPrecoUnitario" prefWidth="100.0" text="Preço Unit." />
+            <TableColumn fx:id="colunaSubtotal" prefWidth="100.0" text="Subtotal" />
+          </columns>
+        </TableView>
+      </children>
+      <padding>
+        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+      </padding>
+    </VBox>
+  </center>
+  <bottom>
+    <HBox alignment="CENTER_RIGHT" prefHeight="55.0" spacing="20.0" style="-fx-background-color: #e0e0e0; -fx-border-color: #cccccc; -fx-border-width: 1 0 0 0;" BorderPane.alignment="CENTER">
+      <children>
+        <Label text="TOTAL:">
+          <font>
+            <Font name="System Bold" size="18.0" />
+          </font>
+        </Label>
+        <Label fx:id="totalLabel" text="R$ 0,00">
+          <font>
+            <Font name="System Bold" size="24.0" />
+          </font>
+        </Label>
+        <Button fx:id="finalizarVendaButton" mnemonicParsing="false" onAction="#handleFinalizarVenda" prefHeight="40.0" prefWidth="150.0" text="Finalizar Venda" />
+      </children>
+      <padding>
+        <Insets right="15.0" />
+      </padding>
+    </HBox>
+  </bottom>
+</BorderPane>
