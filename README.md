@@ -76,6 +76,8 @@ dao: (Data Access Object) Contém as classes responsáveis pela comunicação di
 model: Contém as classes de entidade (POJOs) que representam os dados do sistema (Produto, Venda, etc.).
 util: Contém classes utilitárias, como a ConnectionFactory e o DatabaseInitializer.
 
+```
+
 ---
 
 👨‍💻 Autor
