@@ -38,7 +38,7 @@ public class MainApp extends Application {
         // Carregar e mostrar a tela decidida
         FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource(fxmlInicial));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("PDV Loja de Bolos");
+        stage.setTitle("PDV");
         stage.setScene(scene);
         stage.show();
     }
@@ -48,7 +48,7 @@ public class MainApp extends Application {
         // Este bloco vai redirecionar qualquer erro que aconteceria no console para um arquivo de log
         try {
             // Cria uma pasta de logs no diretório do usuário (ex: C:\Users\SeuNome\PdvLojaLogs)
-            // EscolhemOS esta pasta pois a aplicação sempre terá permissão para escrever aqui.
+            // Escolhemos esta pasta pois a aplicação sempre terá permissão para escrever aqui.
             File logDir = new File(System.getProperty("user.home"), "PdvLojaLogs");
             if (!logDir.exists()) {
                 logDir.mkdirs();

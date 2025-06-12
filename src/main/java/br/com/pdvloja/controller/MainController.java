@@ -10,6 +10,7 @@ import br.com.pdvloja.model.Produto;
 import br.com.pdvloja.model.Venda;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -27,7 +28,8 @@ import java.util.ResourceBundle;
 public class MainController implements Initializable {
 
     // --- Componentes da Seção de Adicionar Produto ---
-    @FXML private ComboBox<Produto> produtosComboBox;
+    @FXML private TextField pesquisaProdutoField;
+    @FXML private ListView<Produto> produtosListView;
     @FXML private TextField quantidadeField;
     @FXML private Button adicionarButton;
     @FXML private Button gerenciarProdutosButton;
@@ -60,29 +62,44 @@ public class MainController implements Initializable {
     private ObservableList<Produto> listaDeProdutos;
     private ObservableList<ItemVenda> itensDaVenda;
 
+    private ObservableList<Produto> listaCompletaDeProdutos;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        // Inicializa TODOS os DAOs para que não fiquem nulos
+        // Inicializa os DAOs e as listas
         this.produtoDAO = new ProdutoDAO();
         this.vendaDAO = new VendaDAO();
         this.itemVendaDAO = new ItemVendaDAO();
         this.caixaDAO = new CaixaDAO();
-
         this.itensDaVenda = FXCollections.observableArrayList();
 
         // Configura as colunas da tabela
         configurarTabela();
-
-        // Carrega os produtos do banco de dados para o ComboBox
-        carregarProdutos();
-
-        // Associa a lista de itens da venda com a tabela
         vendaTableView.setItems(itensDaVenda);
 
-        formaPagamentoComboBox.setItems(FXCollections.observableArrayList("Dinheiro", "Cartão de Crédito", "Pix"));
-        formaPagamentoComboBox.setValue("Dinheiro");
+        // --- LÓGICA DE PESQUISA ATUALIZADA ---
+        atualizarListaDeProdutos();
 
+        // Cria uma FilteredList envolvendo a lista principal
+        FilteredList<Produto> produtosFiltrados = new FilteredList<>(listaCompletaDeProdutos, p -> true);
+
+        // Adiciona um "ouvinte" ao campo de pesquisa.
+        pesquisaProdutoField.textProperty().addListener((observable, oldValue, newValue) -> {
+            produtosFiltrados.setPredicate(produto -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String textoPesquisa = newValue.toLowerCase();
+                if (produto.getNome().toLowerCase().contains(textoPesquisa)) {
+                    return true;
+                }
+                return false;
+            });
+        });
+
+        // Conecta a lista filtrada ao nosso ListView na tela
+        produtosListView.setItems(produtosFiltrados);
         configurarListeners();
     }
 
@@ -136,56 +153,81 @@ public class MainController implements Initializable {
         colunaSubtotal.setCellValueFactory(new PropertyValueFactory<>("subtotal"));
     }
 
-    private void carregarProdutos() {
-        // Busca os produtos do banco
-        listaDeProdutos = FXCollections.observableArrayList(produtoDAO.listarTodos());
-        // Associa a lista ao ComboBox
-        produtosComboBox.setItems(listaDeProdutos);
-    }
-
     // Em MainController.java
 
     @FXML
     private void handleAdicionarProduto() {
-        // Pega os dados da tela
-        Produto produtoSelecionado = produtosComboBox.getSelectionModel().getSelectedItem();
+        Produto produtoSelecionado = produtosListView.getSelectionModel().getSelectedItem();
         String quantidadeTexto = quantidadeField.getText();
 
-        // Validação dos inputs
+        // Validação com feedback visual para o usuário
         if (produtoSelecionado == null) {
-            System.out.println("Erro: Nenhum produto selecionado.");
-            // Futuramente, trocaremos isso por um alerta visual
+            mostrarAlerta("Atenção", "Por favor, selecione um produto da lista.");
             return;
         }
-
         int quantidade;
         try {
             quantidade = Integer.parseInt(quantidadeTexto);
             if (quantidade <= 0) {
-                System.out.println("Erro: A quantidade deve ser positiva.");
+                mostrarAlerta("Erro", "A quantidade deve ser um número positivo.");
                 return;
             }
         } catch (NumberFormatException e) {
-            System.out.println("Erro: Quantidade inválida.");
+            mostrarAlerta("Erro", "A quantidade informada é inválida.");
             return;
         }
 
-        // Cria um novo ItemVenda
-        ItemVenda novoItem = new ItemVenda();
-        novoItem.setProduto(produtoSelecionado);
-        novoItem.setQuantidade(quantidade);
-        novoItem.setPrecoUnitario(produtoSelecionado.getPreco());
-        novoItem.setSubtotal(produtoSelecionado.getPreco() * quantidade);
+        // --- LÓGICA REFINADA PARA JUNTAR ITENS ---
+        boolean produtoJaExisteNoCarrinho = false;
+        // Percorre os itens que já estão no carrinho
+        for (ItemVenda itemExistente : itensDaVenda) {
+            // Se o ID do produto no carrinho for igual ao ID do produto selecionado...
+            if (itemExistente.getProduto().getId() == produtoSelecionado.getId()) {
+                // ...apenas atualiza a quantidade e o subtotal do item que já existe.
+                int novaQuantidade = itemExistente.getQuantidade() + quantidade;
+                itemExistente.setQuantidade(novaQuantidade);
+                itemExistente.setSubtotal(itemExistente.getPrecoUnitario() * novaQuantidade);
+                produtoJaExisteNoCarrinho = true;
+                break; // Sai do loop, pois já encontrou e atualizou
+            }
+        }
 
-        // Adiciona o item à lista que está ligada à tabela
-        itensDaVenda.add(novoItem);
+        // Se o produto não foi encontrado no loop, adiciona como um novo item
+        if (!produtoJaExisteNoCarrinho) {
+            ItemVenda novoItem = new ItemVenda();
+            novoItem.setProduto(produtoSelecionado);
+            novoItem.setQuantidade(quantidade);
+            novoItem.setPrecoUnitario(produtoSelecionado.getPreco());
+            novoItem.setSubtotal(produtoSelecionado.getPreco() * quantidade);
+            itensDaVenda.add(novoItem);
+        }
 
-        // Atualiza o valor total da venda
+        // Atualiza o total e limpa a seleção para a próxima adição
         atualizarTotalVenda();
+        vendaTableView.refresh(); // Força a atualização visual da tabela caso uma linha seja alterada
+        limparCamposDeAdicao();
+    }
 
-        // Limpa os campos para a próxima inserção
-        produtosComboBox.getSelectionModel().clearSelection();
+    private void atualizarListaDeProdutos() {
+        // Garante que a lista principal não seja nula
+        if (listaCompletaDeProdutos == null) {
+            listaCompletaDeProdutos = FXCollections.observableArrayList();
+        }
+        // Limpa a lista atual para não duplicar itens
+        listaCompletaDeProdutos.clear();
+        // Busca a lista atualizada do banco e a adiciona na nossa lista
+        listaCompletaDeProdutos.addAll(produtoDAO.listarTodos());
+        System.out.println("Lista de produtos atualizada com " + listaCompletaDeProdutos.size() + " itens.");
+    }
+
+    /**
+     * Método auxiliar para limpar os campos de pesquisa e quantidade após adicionar um item.
+     */
+    private void limparCamposDeAdicao() {
+        pesquisaProdutoField.clear();
+        produtosListView.getSelectionModel().clearSelection();
         quantidadeField.setText("1");
+        pesquisaProdutoField.requestFocus(); // Devolve o foco para o campo de pesquisa
     }
 
     // Método auxiliar para calcular e exibir o total da venda.
@@ -264,17 +306,18 @@ public class MainController implements Initializable {
         }
     }
 
-    // Método auxiliar para limpar a tela
     private void limparVendaAtual() {
+        // Limpa a tabela de itens da venda
         itensDaVenda.clear();
         totalLabel.setText("R$ 0,00");
-        produtosComboBox.getSelectionModel().clearSelection();
-        quantidadeField.setText("1");
 
-        // Limpeza dos novos campos
+        // Limpa os campos de pagamento e troco
         formaPagamentoComboBox.setValue("Dinheiro");
         valorPagoField.clear();
         trocoLabel.setText("R$ 0,00");
+
+        // Chama o outro método auxiliar para limpar a parte de seleção de produtos
+        limparCamposDeAdicao();
     }
 
     // Método auxiliar para mostrar alertas ao usuário
@@ -297,8 +340,9 @@ public class MainController implements Initializable {
             stage.setScene(scene);
             stage.showAndWait();
 
-            // Recarrega os produtos caso algum tenha sido alterado
-            carregarProdutos();
+            // Após fechar a janela, chama o método para atualizar a lista
+            atualizarListaDeProdutos();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

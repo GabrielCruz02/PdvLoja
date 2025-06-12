@@ -12,6 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.ListView?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.pdvloja.controller.MainController">
   <left>
     <VBox prefHeight="545.0" prefWidth="250.0" spacing="10.0" style="-fx-background-color: #f0f0f0; -fx-border-color: #cccccc; -fx-border-width: 0 1 0 0;" BorderPane.alignment="CENTER">
@@ -22,7 +23,10 @@
           </font>
         </Label>
         <Label text="Selecione um Produto:" />
-        <ComboBox fx:id="produtosComboBox" prefWidth="220.0" promptText="Selecione..." />
+        <Label text="Pesquisar Produto:" />
+        <TextField fx:id="pesquisaProdutoField" promptText="Digite o nome do bolo..." />
+        <Label text="Produtos:" />
+        <ListView fx:id="produtosListView" prefHeight="200.0" VBox.vgrow="ALWAYS" />
         <Label text="Quantidade:" />
         <TextField fx:id="quantidadeField" prefWidth="220.0" text="1" />
         <Button fx:id="adicionarButton" mnemonicParsing="false" onAction="#handleAdicionarProduto" prefHeight="35.0" prefWidth="220.0" text="Adicionar à Venda" />
