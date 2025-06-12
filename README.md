@@ -41,11 +41,9 @@ Existem duas formas de executar o projeto:
 
 ### 1. Para Usuários Finais (Instalador)
 
-1.  Vá para a seção **[Releases]([COLOQUE AQUI O LINK PARA A SEÇÃO DE RELEASES DO SEU GITHUB])** deste repositório.
+1.  Vá para a seção **[Releases](https://github.com/GabrielCruz02/PdvLoja/releases/tag/PDV)** deste repositório.
 2.  Baixe o arquivo `.msi` da versão mais recente.
 3.  Execute o instalador e siga as instruções. O programa será instalado e um atalho será criado na sua Área de Trabalho/Menu Iniciar.
-
-*Dica de professor: No seu repositório GitHub, há uma opção chamada "Releases" no lado direito. Clique em "Create a new release", anexe o seu arquivo `.msi` que geramos e escreva uma pequena descrição. Isso organiza as versões do seu software.*
 
 ### 2. Para Desenvolvedores (Ambiente de Desenvolvimento)
 
