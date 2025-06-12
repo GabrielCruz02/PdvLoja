@@ -101,6 +101,17 @@ public class MainController implements Initializable {
         // Conecta a lista filtrada ao nosso ListView na tela
         produtosListView.setItems(produtosFiltrados);
         configurarListeners();
+
+        ObservableList<String> metodosDePagamento = FXCollections.observableArrayList(
+          "Dinheiro",
+          "Cartão",
+          "Pix"
+        );
+
+        formaPagamentoComboBox.setItems(metodosDePagamento);
+
+        formaPagamentoComboBox.setValue("Dinheiro");
+
     }
 
     private void configurarListeners() {
@@ -367,7 +378,7 @@ public class MainController implements Initializable {
                 case "Dinheiro":
                     totalDinheiro += venda.getValorTotal();
                     break;
-                case "Cartão de Crédito":
+                case "Cartão":
                     totalCartao += venda.getValorTotal();
                     break;
                 case "Pix":
