@@ -83,7 +83,7 @@ util: Contém classes utilitárias, como a ConnectionFactory e o DatabaseInitial
 👨‍💻 Autor
 Gabriel Alves Silva Cruz
 
-[LinkedIn](https://www.linkedin.com/in/gabriel-cruz-4a950a275/) | [GitHub]([https://github.com/GabrielCruz02])
+[LinkedIn](https://www.linkedin.com/in/gabriel-cruz-4a950a275/) | [GitHub](https://github.com/GabrielCruz02)
 
 
 ---
